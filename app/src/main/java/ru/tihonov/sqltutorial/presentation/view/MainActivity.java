@@ -1,29 +1,53 @@
 package ru.tihonov.sqltutorial.presentation.view;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.webkit.WebView;
-import android.widget.FrameLayout;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import ru.tihonov.sqltutorial.R;
 
 public class MainActivity extends AppCompatActivity {
-
+    //основной класс приложения, необходимый для инициализации контейнера
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        showUnits();
-        /*String htmlAsString = "<html><body><h1>Hello, world</h1></body></html>";
-        webView.loadDataWithBaseURL(null, htmlAsString, "text/html", "utf-8", null);*/
+        if (savedInstanceState == null) //если активити не было создано раньше - создаем фрагмент и добавляем транзакцию по замене экрана
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.flMain, new UnitsFragment())
+                    .commit();
     }
 
-    private void showUnits() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.flMain, new UnitsFragment())
-                .commit();
+    @Override
+    public void onBackPressed() { //обработка нажатия кнопки "НАЗАД"
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) { //если на экране не экран с уроками - переходим на него
+            getSupportFragmentManager().popBackStack();
+            setTitle("Home");
+        } else
+            openQuitDialog(); // иначе открываем диалог для подтверждения выхода из приложения
+    }
+
+    private void openQuitDialog() {
+        AlertDialog.Builder quitDialog = new AlertDialog.Builder(
+                this);
+        quitDialog.setTitle("Выход: Вы уверены?");
+
+        quitDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                android.os.Process.killProcess(android.os.Process.myPid());
+            }
+        });
+
+        quitDialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        quitDialog.show();
     }
 }

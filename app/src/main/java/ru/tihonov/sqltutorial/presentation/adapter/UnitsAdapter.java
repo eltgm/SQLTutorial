@@ -31,15 +31,14 @@ public class UnitsAdapter extends RecyclerView.Adapter<UnitsAdapter.ViewHolder> 
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.unit_item, parent, false);
+                .inflate(R.layout.item_unit, parent, false);
 
         final ViewHolder h = new ViewHolder(v);
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int pos = h.getAdapterPosition();
-                String unitName = units.get(pos).getName();
-                callback.onItemClick(unitName);
+                callback.onItemClick(pos);
             }
         });
 
@@ -49,7 +48,7 @@ public class UnitsAdapter extends RecyclerView.Adapter<UnitsAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Unit unit = units.get(position);
-        holder.setTvUnitName(String.format(Locale.ROOT,"%d. %s",unit.getId(), unit.getName()));
+        holder.setTvUnitName(String.format(Locale.ROOT, "%d. %s", unit.getId(), unit.getName()));
     }
 
     @Override
@@ -62,6 +61,10 @@ public class UnitsAdapter extends RecyclerView.Adapter<UnitsAdapter.ViewHolder> 
         notifyDataSetChanged();
     }
 
+    public interface ItemClicked {
+        void onItemClick(int unitId);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tvUnitName)
         TextView tvUnitName;
@@ -71,12 +74,8 @@ public class UnitsAdapter extends RecyclerView.Adapter<UnitsAdapter.ViewHolder> 
             ButterKnife.bind(this, itemView);
         }
 
-        public void setTvUnitName(String unitName) {
+        void setTvUnitName(String unitName) {
             this.tvUnitName.setText(unitName);
         }
-    }
-
-    public interface ItemClicked {
-        void onItemClick(String unitName);
     }
 }

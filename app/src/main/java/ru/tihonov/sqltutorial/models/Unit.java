@@ -1,6 +1,7 @@
 package ru.tihonov.sqltutorial.models;
 
 public class Unit {
+    //POJO урока
     private int id;
     private String name;
     private String text;

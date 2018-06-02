@@ -1,35 +1,67 @@
 package ru.tihonov.sqltutorial.presentation.presenter;
 
+import android.support.v4.app.FragmentManager;
+
 import com.arellomobile.mvp.InjectViewState;
 
+import javax.inject.Inject;
+
+import io.reactivex.observers.DisposableObserver;
+import ru.tihonov.sqltutorial.App;
+import ru.tihonov.sqltutorial.R;
+import ru.tihonov.sqltutorial.domain.UnitInteractor;
 import ru.tihonov.sqltutorial.models.Unit;
+import ru.tihonov.sqltutorial.presentation.view.LessonFragment;
 import ru.tihonov.sqltutorial.presentation.view.UnitView;
 
 @InjectViewState
 public class UnitPresenter extends BasePresenter<UnitView> {
 
+    @Inject
+    UnitInteractor unitInteractor;
 
+    public UnitPresenter() {
+        App.getInteractorComponent().inject(this);
+    }
 
     @Override
     protected void onFirstViewAttach() {
         super.onFirstViewAttach();
 
-        Unit u1 = new Unit();
-        u1.setId(1);
-        u1.setName("MySQL - Home");
-        u1.setText("<html><body><h1>test1</h1></body></html>");
+        getUnits();
+    }
 
-        Unit u2 = new Unit();
-        u2.setId(2);
-        u2.setName("MySQL - Introduction");
-        u2.setText("<html><body><h1>test2</h1></body></html>");
+    public void moveToLesson(FragmentManager fragmentManager, int unitId) {
+        fragmentManager.beginTransaction()
+                .add(R.id.flMain, LessonFragment.getInstance(unitId))
+                .addToBackStack("lesson")
+                .commit();
+    }
 
-        getViewState().showUnits(u1);
-        getViewState().showUnits(u2);
+    private void getUnits() {
+        unitInteractor.getUnits(new UnitsObserver());
     }
 
     @Override
     public void disconnect() {
+        unitInteractor.dispose();
+    }
 
+    class UnitsObserver extends DisposableObserver<Unit> {
+
+        @Override
+        public void onNext(Unit unit) {
+            getViewState().showUnit(unit);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            getViewState().showError(e.toString());
+        }
+
+        @Override
+        public void onComplete() {
+
+        }
     }
 }

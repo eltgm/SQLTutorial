@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.arellomobile.mvp.MvpAppCompatFragment;
 import com.arellomobile.mvp.presenter.InjectPresenter;
@@ -19,31 +20,35 @@ import ru.tihonov.sqltutorial.models.Unit;
 import ru.tihonov.sqltutorial.presentation.adapter.UnitsAdapter;
 import ru.tihonov.sqltutorial.presentation.presenter.UnitPresenter;
 
-public class UnitsFragment extends MvpAppCompatFragment implements UnitView {
+public class UnitsFragment extends MvpAppCompatFragment implements UnitView { //реализация экрана UnitView
+    @InjectPresenter
+    UnitPresenter mPresenter;
 
     @BindView(R.id.rvUnits)
     RecyclerView rvUnit;
 
-    @InjectPresenter
-    UnitPresenter mPresenter;
-
     private UnitsAdapter unitsAdapter;
 
+
+    //создаем вью для фрагмента
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_unit, container, false);
     }
 
+
+    //работа с экраном после его создания
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         initViews(view);
-
     }
 
-    private void initViews(View view){
+
+    //инициализация объектов на экране
+    private void initViews(View view) {
         ButterKnife.bind(this, view);
 
         if (getActivity() != null)
@@ -52,8 +57,8 @@ public class UnitsFragment extends MvpAppCompatFragment implements UnitView {
         rvUnit.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         unitsAdapter = new UnitsAdapter(new UnitsAdapter.ItemClicked() {
             @Override
-            public void onItemClick(String unitName) {
-
+            public void onItemClick(int unitId) {
+                mPresenter.moveToLesson(getFragmentManager(), unitId + 1);
             }
         });
 
@@ -61,14 +66,21 @@ public class UnitsFragment extends MvpAppCompatFragment implements UnitView {
         mPresenter.attachView(this);
     }
 
+    //при уничтожении объекта
     @Override
     public void onDestroy() {
         super.onDestroy();
         mPresenter.onDestroy();
     }
 
+    //метод для отображения главы
     @Override
-    public void showUnits(Unit unit) {
+    public void showUnit(Unit unit) {
         unitsAdapter.add(unit);
+    }
+
+    @Override
+    public void showError(String error) {
+        Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
     }
 }

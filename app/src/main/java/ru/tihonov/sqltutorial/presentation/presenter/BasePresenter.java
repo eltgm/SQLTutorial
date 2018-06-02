@@ -8,11 +8,12 @@ import com.arellomobile.mvp.MvpView;
  */
 
 public abstract class BasePresenter<View extends MvpView> extends MvpPresenter<View> {
+    //класс для обощения всех презентеров, с целью переопределения поведения при его уничтожении
     @Override
     public void onDestroy() {
         super.onDestroy();
         this.disconnect();
     }
 
-    public abstract void disconnect();
+    protected abstract void disconnect();
 }
